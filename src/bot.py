@@ -26,12 +26,18 @@ class MyClient(discord.Client):
         print('------')
 
     async def my_background_task(self):
+        counter = 0
         await self.wait_until_ready()
-        channel = self.get_channel(805280434699239425) # channel ID goes here
+        log_channel = self.get_channel(805280434699239425) # channel ID goes here
+        event_channel = self.get_channel(805341165293142037) # channel ID goes here
         while not self.is_closed():
-            result = await self.monitor.run()
-            await channel.send(result)
-            await asyncio.sleep(5) # task runs every 60 seconds
+            counter += 1
+            result, message = await self.monitor.run()
+            if result is False:
+                await event_channel.send(message)
+            elif counter % 10 == 0:
+                await log_channel.send(message)
+            await asyncio.sleep(30) # task runs every 60 seconds
 
 
 client = MyClient()

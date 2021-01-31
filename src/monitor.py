@@ -30,8 +30,16 @@ class Monitor():
                 temperature = int(f.read().strip()) / 1000.0
             except Exception as e:
                 print(f"Error: {e}")
-                self.report["temperature"] = "Error"
+                self.report["temperature"] = "Unable to get teperature"
+                return False
+
+        if temperature > 60:
+            self.report["temperature"] = f"Temperature={temperature} exceeded 60 Celcius"
+            return False
+
         self.report["temperature"] = temperature
+
+        return True
 
     async def get_mem_usage(self):
         mem = await self._cmd("free")
@@ -39,9 +47,11 @@ class Monitor():
             _, total, used, free, _, _, avail = mem.splitlines()[1].split()
         except Exception as e:
             print(f"Error: {e}")
-            self.report["mem"] = "Error"
-            return
+            self.report["mem"] = "Unable to get used memory"
+            return False
         self.report["mem"] = int(used) / int(total)
+
+        return True
 
     async def get_cpu_usage(self):
         cpu = await self._cmd("mpstat")
@@ -49,15 +59,24 @@ class Monitor():
             cpu_used = float(cpu.split(b"all")[1].split()[0])
         except Exception as e:
             print(f"Error: {e}")
-            self.report["cpu"] = "Error"
-            return
+            self.report["cpu"] = "Unable to get used CPU"
+            return False
+
+        if cpu_used > 0.5:
+            self.report["cpu"] = f"High CPU load {cpu_used}"
+            return False
+
         self.report["cpu"] = cpu_used
+        return True
 
     async def run(self):
         tasks = [self.get_cpu_usage(), self.get_mem_usage(), self.get_temperature()]
-        await asyncio.gather(*tasks)
+        result = await asyncio.gather(*tasks)
 
-        return self.report
+        if False in result:
+            return (False, self.report)
+
+        return (True, self.report)
 
 if __name__ == "__main__":
     monitor = Monitor(name="Rasp4")
