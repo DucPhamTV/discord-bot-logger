@@ -33,8 +33,8 @@ class Monitor():
                 self.report["temperature"] = "Unable to get teperature"
                 return False
 
-        if temperature > 60:
-            self.report["temperature"] = f"Temperature={temperature} exceeded 60 Celcius"
+        if temperature > 70:
+            self.report["temperature"] = f"Temperature={temperature} exceeded 70 Celcius"
             return False
 
         self.report["temperature"] = temperature
