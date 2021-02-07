@@ -5,7 +5,10 @@ Just to practice asyncio
 
 import asyncio
 
+from logger import Logger
+
 TEMPERATURE_FILE = "/sys/class/thermal/thermal_zone0/temp"
+log = Logger()
 
 
 class Monitor():
@@ -29,7 +32,7 @@ class Monitor():
             try:
                 temperature = int(f.read().strip()) / 1000.0
             except Exception as e:
-                print(f"Error: {e}")
+                log.error(f"{e}")
                 self.report["temperature"] = "Unable to get teperature"
                 return False
 
@@ -46,7 +49,7 @@ class Monitor():
         try:
             _, total, used, free, _, _, avail = mem.splitlines()[1].split()
         except Exception as e:
-            print(f"Error: {e}")
+            log.error(f"{e}")
             self.report["mem"] = "Unable to get used memory"
             return False
         self.report["mem"] = int(used) / int(total)
@@ -58,7 +61,7 @@ class Monitor():
         try:
             cpu_used = float(cpu.split(b"all")[1].split()[0])
         except Exception as e:
-            print(f"Error: {e}")
+            log.error(f"{e}")
             self.report["cpu"] = "Unable to get used CPU"
             return False
 
@@ -78,9 +81,10 @@ class Monitor():
 
         return (True, self.report)
 
+
 if __name__ == "__main__":
     monitor = Monitor(name="Rasp4")
 
     asyncio.run(monitor.run())
-    print("+++++++Report++++++++")
-    print(monitor.report)
+    log.info("+++++++Report++++++++")
+    log.info(monitor.report)

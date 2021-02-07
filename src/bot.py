@@ -7,8 +7,10 @@ import discord
 from monitor import Monitor
 from async_socket import AsyncSocket
 from rtsp_message import RTSPMessage
+from logger import Logger
 
 TOKEN = os.getenv('TOKEN')
+log = Logger()
 
 
 class MyClient(discord.Client):
@@ -28,10 +30,10 @@ class MyClient(discord.Client):
         self.pinger = self.loop.create_task(self.ping_to())
 
     async def on_ready(self):
-        print('Logged in as')
-        print(self.user.name)
-        print(self.user.id)
-        print('------')
+        log.info('Logged in as')
+        log.info(self.user.name)
+        log.info(self.user.id)
+        log.info('------')
         self.log_channel = self.get_channel(805280434699239425)
         self.event_channel = self.get_channel(805341165293142037)
 
@@ -45,7 +47,7 @@ class MyClient(discord.Client):
                 try:
                     await socket.init()
                 except OSError as e:
-                    print(f"Error: {e}")
+                    log.error(f"Error: {e}")
                     await self.event_channel.send(
                         f"Camera at IP: {ip} couldn't connect"
                     )
