@@ -77,5 +77,12 @@ class MyClient(discord.Client):
             await asyncio.sleep(30) # task runs every 60 seconds
 
 
+bot = commands.Bot(command_prefix='!')
+
+@bot.command(name="cfg")
+async def update_cfg(ctx, *args):
+    if ctx.channel == "807960618786095105":
+        print(args)
+
 client = MyClient()
 client.run(TOKEN)
