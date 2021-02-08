@@ -10,7 +10,7 @@ log = Logger()
 
 
 class Config:
-    self.DEFAULT_CFG = {
+    DEFAULT_CFG = {
         "cameras_list": [],
         "ping_interval": 30,
         "status_check_interval": 30,
@@ -40,3 +40,6 @@ class Config:
     def save_config(self, path):
         with open(path) as f:
             json.dump(f)
+
+    def update(self, key, value):
+        self.cfg.update({key: value})
