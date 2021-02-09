@@ -63,7 +63,7 @@ class MyClient(discord.Client):
                 await self.event_channel.send(
                     f"Camera at IP: {ip} responds Error code {result}"
                 )
-            await asyncio.sleep(30)
+            await asyncio.sleep(cfg.get('interval'))
 
     async def my_background_task(self):
         counter = 0
@@ -75,7 +75,8 @@ class MyClient(discord.Client):
                 await self.event_channel.send(message)
             elif counter % 10 == 0:
                 await self.log_channel.send(message)
-            await asyncio.sleep(30) # task runs every 60 seconds
+            #log.info(f"run status check {cfg.get('interval')}")
+            await asyncio.sleep(cfg.get('interval'))
 
 
 bot = commands.Bot(command_prefix='!')

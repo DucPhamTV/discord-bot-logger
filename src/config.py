@@ -18,7 +18,7 @@ class Config:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
-            cls._instance.cfg = {}
+            cls._instance.cfg = cls.DEFAULT_CFG
 
         return cls._instance
 
@@ -45,6 +45,12 @@ class Config:
 
     def update(self, key, value):
         self.cfg.update({key: value})
+
+    def get(self, key):
+        return self.cfg.get(key)
+
+    def get_config(self):
+        return self.cfg
 
 cfg = Config()
 
@@ -80,7 +86,7 @@ class ConfigHandler:
         await self.ctx.send(f"interval has been updated to {interval} seconds")
 
     async def show_cfg(self):
-        await self.ctx.send(f"current config: {cfg.cfg}")
+        await self.ctx.send(f"current config: {cfg.get_config()}")
 
     async def save_persistent_config(self):
         cfg.save_config()
@@ -97,3 +103,5 @@ class ConfigHandler:
         config_usage = list(self.handlers)
         await self.ctx.send(f"Sorry. Wrong command. Usage:\n{config_usage}")
 
+if __name__ == "__main__":
+    print(f"{cfg.get()}")
