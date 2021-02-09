@@ -8,12 +8,10 @@ from discord.ext import commands
 from monitor import Monitor
 from async_socket import AsyncSocket
 from rtsp_message import RTSPMessage
-from logger import Logger
-from config import Config
+from logger import log
+from config import cfg, ConfigHandler
 
 TOKEN = os.getenv('TOKEN')
-log = Logger()
-cfg = Config()
 
 
 class MyClient(discord.Client):
@@ -82,6 +80,7 @@ class MyClient(discord.Client):
 
 bot = commands.Bot(command_prefix='!')
 
+
 @bot.event
 async def on_ready():
     print('[BOT] Created.')
@@ -89,18 +88,8 @@ async def on_ready():
 
 @bot.command(name="cfg")
 async def update_cfg(ctx, *args):
-    print(args)
-
-    if args[0] == "status_check_interval":
-        if len(args) != 2:
-            await ctx.send("Invalid update status_check_interval")
-            return
-        cfg.update("status_check_interval", int(args[1]))
-        await ctx.send(f"status_check_interval has been updated to {args[1]}")
-    elif args[0] == "show":
-        await ctx.send(f"current config: {cfg.cfg}")
-    else:
-        await ctx.send("Sorry. I don't understand your command")
+    handler = ConfigHandler(ctx, args)
+    await handler.handle()
 
 
 loop = asyncio.get_event_loop()

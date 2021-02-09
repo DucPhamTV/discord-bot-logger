@@ -33,6 +33,8 @@ class Logger():
         self.log.error(*args)
 
 
+log = Logger()
+
 if __name__ == "__main__":
     log = Logger()
     log.info("Hello world!")
