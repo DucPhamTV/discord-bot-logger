@@ -2,6 +2,7 @@ import os
 
 import asyncio
 
+import aiohttp
 import discord
 from discord.ext import commands
 
@@ -29,6 +30,7 @@ class MyClient(discord.Client):
         # create the background task and run it in the background
         self.bg_task = self.loop.create_task(self.my_background_task())
         self.pinger = self.loop.create_task(self.ping_to())
+        self.heroku_pinger = self.loop.create_task(self.heroku_keep_alive())
 
     async def on_ready(self):
         log.info('Logged in as')
@@ -63,6 +65,30 @@ class MyClient(discord.Client):
                 await self.event_channel.send(
                     f"Camera at IP: {ip} responds Error code {result}"
                 )
+            await asyncio.sleep(cfg.get('interval'))
+
+    async def http_get(self, url):
+        timeout = aiohttp.ClientTimeout(total=3)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            try:
+                log.info(f"in http get {url}")
+                async with session.get(url) as r:
+                    log.info(r.status)
+                    if r.status != 200:
+                        return f"URL {url} response abnormal code {r.status}"
+            except ClientConnectionError as e:
+                log.error(e)
+                return f"Unable to reach url {url}"
+
+    async def heroku_keep_alive(self):
+        await self.wait_until_ready()
+        while not self.is_closed():
+            for url in cfg.get('cloud_nodes'):
+                log.info(url)
+                msg = await self.http_get(url)
+                log.info(msg)
+                if msg is not None:
+                    await self.event_channel.send(msg)
             await asyncio.sleep(cfg.get('interval'))
 
     async def my_background_task(self):

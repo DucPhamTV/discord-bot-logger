@@ -64,6 +64,8 @@ class ConfigHandler:
             "show_config": self.show_cfg,
             "save_config": self.save_persistent_config,
             "load_config": self.load_cfg,
+            "add_cloud_nodes": self.add_cloud_nodes,
+            "remove_cloud_nodes": self.remove_cloud_nodes,
         }
 
     async def handle(self):
@@ -102,6 +104,28 @@ class ConfigHandler:
     async def unknown_command(self):
         config_usage = list(self.handlers)
         await self.ctx.send(f"Sorry. Wrong command. Usage:\n{config_usage}")
+
+    async def add_cloud_nodes(self):
+        if len(self.args) != 2:
+            await self.ctx.send("Missed value after add_cloud_nodes")
+            return
+        nodes = self.args[1].split(",")
+        cfg.get("cloud_nodes").extend(nodes)
+        await self.ctx.send(f"Updated cloud_nodes: {cfg.get('cloud_nodes')}")
+
+    async def remove_cloud_nodes(self):
+        if len(self.args) != 2:
+            await self.ctx.send("Missed value after add_cloud_nodes")
+            return
+        nodes = self.args[1].split(",")
+        for node in nodes:
+            try:
+                cfg.get('cloud_nodes').remove(node)
+            except ValueError:
+                log.warning(f"Remove a node doesn't exist {node}")
+
+        await self.ctx.send(f"Updated cloud_nodes: {cfg.get('cloud_nodes')}")
+
 
 if __name__ == "__main__":
     print(f"{cfg.get()}")
