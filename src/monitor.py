@@ -53,6 +53,9 @@ class Monitor():
             self.report["mem"] = "Unable to get used memory"
             return False
         self.report["mem"] = int(used) / int(total)
+        if self.report["mem"] > 0.8:
+            self.report["mem"] = f"RAM is almost full! {self.report['mem']}"
+            return False
 
         return True
 
@@ -65,7 +68,7 @@ class Monitor():
             self.report["cpu"] = "Unable to get used CPU"
             return False
 
-        if cpu_used > 0.5:
+        if cpu_used > 2.5:
             self.report["cpu"] = f"High CPU load {cpu_used}"
             return False
 

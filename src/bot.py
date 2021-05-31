@@ -26,7 +26,7 @@ class MyClient(discord.Client):
         hostname = socket.gethostname()
         self.monitor = Monitor(name=hostname)
 
-        self.cameras_list = [("192.168.1.4", 554), ("192.168.1.5", 554)]
+        self.cameras_list = []  # ("192.168.1.4", 554), ("192.168.1.5", 554)]
         # create the background task and run it in the background
         self.bg_task = self.loop.create_task(self.my_background_task())
         self.pinger = self.loop.create_task(self.ping_to())
