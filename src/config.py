@@ -4,6 +4,8 @@ Singleton configuration listener
 import json
 from pathlib import Path
 
+import aiohttp
+
 from logger import log
 
 
@@ -56,6 +58,8 @@ cfg = Config()
 
 
 class ConfigHandler:
+    EXTERNAL_IP_CHECKER = "https://api.ipify.org?format=json"
+
     def __init__(self, ctx, args):
         self.ctx = ctx
         self.args = args
@@ -66,6 +70,7 @@ class ConfigHandler:
             "load_config": self.load_cfg,
             "add_cloud_nodes": self.add_cloud_nodes,
             "remove_cloud_nodes": self.remove_cloud_nodes,
+            "my_public_ip": self.my_public_ip,
         }
 
     async def handle(self):
@@ -125,6 +130,17 @@ class ConfigHandler:
                 log.warning(f"Remove a node doesn't exist {node}")
 
         await self.ctx.send(f"Updated cloud_nodes: {cfg.get('cloud_nodes')}")
+
+    async def my_public_ip(self):
+        timeout = aiohttp.ClientTimeout(total=3)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            try:
+                async with session.get(self.EXTERNAL_IP_CHECKER) as resp:
+                    response = await resp.json()
+                    await self.ctx.send(f"My public IPv4 is {response}")
+            except ClientConnectionError as e:
+                log.error(e)
+                return f"Error to reach {self.EXTERNAL_IP_CHECKER}"
 
 
 if __name__ == "__main__":
